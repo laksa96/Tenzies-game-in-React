@@ -1,29 +1,37 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import Dice from './components/Dice'
 import {nanoid} from 'nanoid'
 
+// Generate single dice
+const generateDice = () => {
+    return {
+        value: Math.ceil(Math.random() * 6), 
+        isHeld: false,
+        id: nanoid() 
+    }
+}
+
+// Generate array of 10 random numbers from 1-6
+const allNewDices = () => {
+    const arr = []
+    for (let i = 0; i < 10; i++) {
+        arr.push(generateDice())
+    }
+    return arr
+}
+
 const App = () => {
 
-    // Generate single dice
-    const generateDice = () => {
-        return {
-            value: Math.ceil(Math.random() * 6), 
-            isHeld: false,
-            id: nanoid() 
-        }
-    }
-
-    // Generate array of 10 random numbers from 1-6
-    const allNewDices = () => {
-        const arr = []
-        for (let i = 0; i < 10; i++) {
-            arr.push(generateDice())
-        }
-        return arr
-    }
-
-    // Dices state
+    // Tenzies state that represents if game is won or not
+    const [tenzies, setTenzies] = useState(false)
+    // Dices state that stores all dices
     const [dices, setDices] = useState(allNewDices())
+
+    // Effect that check if game is won everytime dices changes
+    useEffect(() => {
+        const won = (dices.every(dice => dice.value === dices[0].value && dice.isHeld === true))
+        won && setTenzies(true)
+    }, [dices])
 
     // Button click function for re-rolling
     const rerollDices = () => {
@@ -62,7 +70,12 @@ const App = () => {
                 {diceElements}
             </div>
             <div className='d-flex justify-content-center mt-5'>
-                <button onClick={() => rerollDices()} className='btn btn-primary px-5 py-1 fs-3 fw-bold'>Roll</button>
+                <button 
+                    onClick={() => rerollDices()} 
+                    className='btn btn-primary px-5 py-1 fs-3 fw-bold'
+                >
+                    Roll
+                </button>
             </div>
         </main>
     )
