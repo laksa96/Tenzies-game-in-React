@@ -27,12 +27,27 @@ const App = () => {
     const [tenzies, setTenzies] = useState(false)
     // Dices state that stores all dices
     const [dices, setDices] = useState(allNewDices())
+    // Number of rolls state
+    const [numberOfRolls, setNumberOfRolls] = useState(0)
 
     // Effect that check if game is won everytime dices changes
     useEffect(() => {
         const won = (dices.every(dice => dice.value === dices[0].value && dice.isHeld === true))
         won && setTenzies(true)
     }, [dices])
+
+    useEffect(() => {
+        if (tenzies) {
+            if (localStorage.getItem('rolls')) {
+                if (localStorage.getItem('rolls') > numberOfRolls) {
+                    localStorage.setItem('rolls', numberOfRolls)
+                }
+            }
+            else {
+                localStorage.setItem('rolls', numberOfRolls)
+            }
+        }
+    }, [tenzies])
 
     // Button click function for re-rolling
     const rerollDices = () => {
@@ -42,10 +57,12 @@ const App = () => {
                 ? dice
                 : generateDice()
             }))
+            setNumberOfRolls(prevnumberOfRolls => prevnumberOfRolls + 1)
         }
         else {
             setDices(allNewDices())
             setTenzies(false)
+            setNumberOfRolls(0)
         }
     }
 
@@ -77,6 +94,8 @@ const App = () => {
             <div className='d-flex justify-content-center flex-wrap gap-3 mt-4'>
                 {diceElements}
             </div>
+            {tenzies && <p className='fw-bold px-4 mt-3'>Number of rolls: {numberOfRolls}</p>}
+            {localStorage.getItem('rolls') && tenzies && <p className='fw-bold px-4 mt-3'>Record for best number of rolls: {localStorage.getItem('rolls')}</p>}
             <div className='d-flex justify-content-center mt-5'>
                 <button
                     onClick={() => rerollDices()}

@@ -23,8 +23,19 @@ code {
   height: 60px;
   background-color: #fff;
   cursor: pointer;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .dice__active {
   background-color: aquamarine;
+}
+
+.dice--dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #000;
 }
