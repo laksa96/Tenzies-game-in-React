@@ -21,6 +21,13 @@ const allNewDices = () => {
     return arr
 }
 
+// Get time
+const getTime = (time) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = time % 60
+    return `${minutes ? minutes + 'minutes' : ''} ${seconds} seconds`
+}
+
 const App = () => {
 
     // Tenzies state that represents if game is won or not
@@ -29,6 +36,8 @@ const App = () => {
     const [dices, setDices] = useState(allNewDices())
     // Number of rolls state
     const [numberOfRolls, setNumberOfRolls] = useState(0)
+    // Timer state
+    const [timer, setTimer] = useState(0)
 
     // Effect that check if game is won everytime dices changes
     useEffect(() => {
@@ -36,17 +45,36 @@ const App = () => {
         won && setTenzies(true)
     }, [dices])
 
+    // Save record to localStorage
     useEffect(() => {
         if (tenzies) {
-            if (localStorage.getItem('rolls')) {
+            if (localStorage.getItem('rolls') && localStorage.getItem('time')) {
                 if (localStorage.getItem('rolls') > numberOfRolls) {
                     localStorage.setItem('rolls', numberOfRolls)
+                }
+                if (localStorage.getItem('time') > timer) {
+                    localStorage.setItem('time', timer)
                 }
             }
             else {
                 localStorage.setItem('rolls', numberOfRolls)
+                localStorage.setItem('time', timer)
             }
         }
+    }, [tenzies])
+
+    // Effect for timer
+    useEffect(() => {
+        let interval = null
+        if (!tenzies) {
+            interval = setInterval(() => {
+                setTimer(prevTimer => prevTimer + 1)
+            }, 1000)
+        }
+        else if (tenzies) {
+            clearInterval(interval)
+        }
+        return () => clearInterval(interval)
     }, [tenzies])
 
     // Button click function for re-rolling
@@ -95,7 +123,9 @@ const App = () => {
                 {diceElements}
             </div>
             {tenzies && <p className='fw-bold px-4 mt-3'>Number of rolls: {numberOfRolls}</p>}
+            {tenzies && <p className='fw-bold px-4 mt-3'>Time taken: {getTime(timer)}</p>}
             {localStorage.getItem('rolls') && tenzies && <p className='fw-bold px-4 mt-3'>Record for best number of rolls: {localStorage.getItem('rolls')}</p>}
+            {localStorage.getItem('time') && tenzies && <p className='fw-bold px-4 mt-3'>Best time record: {getTime(localStorage.getItem('time'))}</p>}
             <div className='d-flex justify-content-center mt-5'>
                 <button
                     onClick={() => rerollDices()}
